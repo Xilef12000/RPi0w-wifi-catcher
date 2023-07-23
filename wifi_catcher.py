@@ -55,20 +55,28 @@ color()
 while True:
 	color("G")
 	content = iwlist.scan(interface="wlan0")
-	time_now = time()
+	timeNow = time()
 	color("Y")
 	cells = iwlist.parse(content)
-	#print(datetime.utcfromtimestamp(time_now).strftime('%Y-%m-%d %H:%M:%S'))
+	#print(datetime.utcfromtimestamp(timeNow).strftime('%Y-%m-%d %H:%M:%S'))
 	for cell in cells:
 		#print(cell["mac"], cell["essid"], int(cell["channel"]), cell["encryption"])
 		with con:
-			con.execute("INSERT OR REPLACE INTO WIFI VALUES (?, ?, ?, ?, ?)", (cell["mac"], cell["essid"], int(cell["channel"]), cell["encryption"], time_now))
+			con.execute("INSERT OR REPLACE INTO WIFI VALUES (?, ?, ?, ?, ?)", (cell["mac"], cell["essid"], int(cell["channel"]), cell["encryption"], timeNow))
 	color("B")
 	br = False
 	timeEnd = time() + 5
 	while time() < timeEnd:
 		if GPIO.input(BUTTON_PIN) == GPIO.LOW:
-			br = True
+			color("R")
+			timeButtonEnd = time() + 3
+			while GPIO.input(BUTTON_PIN) == GPIO.LOW:
+				if time() > timeButtonEnd:
+					br = True
+					break
+			if not br:
+				color("B")
+		if br:
 			break
 	if br:
 		break
