@@ -15,3 +15,4 @@ touch /home/pi/RPi0w-wifi-catcher/wifi.db
 sudo python3 /home/pi/RPi0w-wifi-catcher/setup.py
 
 sudo systemctl enable wifi-catcher.service
+sudo reboot
