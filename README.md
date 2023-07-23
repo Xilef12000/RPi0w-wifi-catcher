@@ -55,3 +55,5 @@ sudo sh setup.sh
 ```
 
 open the webpage on port 8080
+
+a long button-press will turn your pi off
