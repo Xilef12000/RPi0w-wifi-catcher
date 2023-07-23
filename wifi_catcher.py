@@ -4,18 +4,8 @@ import sqlite3
 from time import time
 from datetime import datetime
 
-con = sqlite3.connect("wifi.db")
+con = sqlite3.connect("/home/pi/RPi0w-wifi-catcher/wifi.db")
 cur = con.cursor()
-with con:
-	con.execute("DROP TABLE IF EXISTS WIFI")
-	con.execute('''CREATE TABLE wifi(
-					mac varchar(17),
-					essid varchar(32) NOT NULL,
-					channel tinyint,
-					encryption varchar(8),
-					last_seen INTEGER(11),
-					PRIMARY KEY (mac)
-				)''')
 
 LED_PIN_R = 37
 LED_PIN_G = 40
