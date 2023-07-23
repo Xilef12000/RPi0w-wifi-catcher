@@ -1,3 +1,6 @@
+# iwlist.py by iancoleman
+# https://github.com/iancoleman/python-iwlist
+
 import re
 import subprocess
 
