@@ -70,5 +70,5 @@ while True:
 			break
 	if br:
 		break
-color()
+color("V")
 con.close()
