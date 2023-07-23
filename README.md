@@ -53,3 +53,5 @@ wget https://raw.githubusercontent.com/Xilef12000/RPi0w-wifi-catcher/main/setup.
 sudo chmod a+x setup.sh
 sudo sh setup.sh
 ```
+
+open the webpage on port 8080
