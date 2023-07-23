@@ -1,0 +1,9 @@
+[Unit]
+Description=RPi0w-wifi-catcher
+
+[Service]
+Type=simple
+ExecStart=sudo sh /home/pi/RPi0w-wifi-catcher/run.sh
+
+[Install]
+WantedBy=multi-user.target
