@@ -9,7 +9,7 @@ A Raspberry Pi Zero W based wifi scanner
 | button | pi0w  | PIN |
 |--------|-------|-----|
 | GND    | GND   | 6   |
-| VIN    | 3V3   | 1   |
+| VIN    | 3V3   | 2   |
 | Signal | GPIO4 | 7   |
 
 ### RGB-LED:
@@ -22,28 +22,16 @@ A Raspberry Pi Zero W based wifi scanner
 | green | GPIO21 | 40  |
 | blue  | GPIO20 | 38  |
 
-### ENC28J60:
-| Module | pi0w        | PIN |
-|--------|-------------|-----|
-| CLKOUT |             |     |
-| INT    | GPIO25      | 22  |
-| WOL    |             |     |
-| SO     | GPIO9/MISO  | 21  |
-| SI     | GPIO10/MOSI | 19  |
-| SCK    | GPIO11/SCLK | 23  |
-| CS     | GPIO8/CE0_N | 24  |
-| RESET  |             |     |
-| VCC    | 3V3         | 17  |
-| GND    | GND         | 14  |
+### 0.96" I2C OLED Display::
+| OLED | pi0w        | PIN |
+|------|-------------|-----|
+| GND  | GND         | 9   |
+| VCC  | 3V3         | 1   |
+| SCL  | GPIO3/SCL   | 5   |
+| SDA  | GPIO2/SDA   | 3   |
 
 ### boot preparation:
-1. flash SD-Card with Raspberry Pi OS light (do not configure wifi)
-3. open `config.txt` of the boot partition of the SD-Card
-4. add the following to the end of the file:  
-```
-dtparam=spi=on
-dtoverlay=enc28j60
-```
+1. flash SD-Card with Raspberry Pi OS light (configure your wifi now!)
 
 for more information see [this article by the Raspberry Pi Spy](https://www.raspberrypi-spy.co.uk/2020/05/adding-ethernet-to-a-pi-zero/)
 
