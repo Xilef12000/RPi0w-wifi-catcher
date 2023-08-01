@@ -14,111 +14,144 @@ oled.fill(0)
 oled.show()
 image = Image.new("1", (oled.width, oled.height))
 draw = ImageDraw.Draw(image)
-font = ImageFont.load_default()
+#font = ImageFont.load_default()
+font = ImageFont.truetype(font="DejaVuSans", size=16)
 
 con = sqlite3.connect("/home/pi/RPi0w-wifi-catcher/wifi.db")
 cur = con.cursor()
 
-LED_PIN_R = 13
-LED_PIN_G = 19
-LED_PIN_B = 26
+LED_R = 13
+LED_G = 19
+LED_B = 26
+BUT_E = 21
+BUT_U = 22
+BUT_D = 17
+BUT_L = 27
+BUT_R = 6
 
-BUTTON_PIN = 21
+def butEn(but = 0):
+	global timeOnLast
+	timeOnLast = time()
+	global powerStateOn
+	powerStateOn = True
+	color()
+	oled.poweron()
+def butPr(but = 0):
+	global powerStateOn
+	global timeWait
+	global timeOnLast
+	if powerStateOn:
+		timeOnLast = time()
+		if but == BUT_L and timeWait > 0:
+			timeWait -= 1
+		elif but == BUT_R and timeWait < 10:
+			timeWait += 1
+		oledRefresh()
 
 #GPIO.setwarnings(False)
 #GPIO.setmode(GPIO.BCM)
-GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(LED_PIN_R, GPIO.OUT)
-GPIO.setup(LED_PIN_G, GPIO.OUT)
-GPIO.setup(LED_PIN_B, GPIO.OUT)
+GPIO.setup(BUT_E, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUT_U, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUT_D, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUT_L, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUT_R, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(BUT_E,GPIO.FALLING,callback=butEn)
+GPIO.add_event_detect(BUT_L,GPIO.FALLING,callback=butPr)
+GPIO.add_event_detect(BUT_R,GPIO.FALLING,callback=butPr)
+GPIO.setup(LED_R, GPIO.OUT)
+GPIO.setup(LED_G, GPIO.OUT)
+GPIO.setup(LED_B, GPIO.OUT)
 
-
-txt_action = "test"
-txt_count = 0
-txt_count_now = 0
-def text():
+timeWait = 5
+timeOn = 10
+timeOnLast = time()
+powerStateOn = True
+txtSetStatus = "test"
+txtCount = 0
+txtCountNow = 0
+ledColor = ""
+def oledRefresh():
 	draw.rectangle((0, 0, oled.width, oled.height), outline=0, fill=0)
 	(font_width, font_height) = font.getsize("txt")
 	draw.text(
 	    (0, 0),
-	    str(txt_count),
+	    str(txtCount),
 	    font=font,
 	    fill=255,
 	)
 	draw.text(
 	    (oled.width // 2, 0),
-	    str(txt_count_now),
+	    str(txtCountNow),
 	    font=font,
 	    fill=255,
 	)
 	draw.text(
 	    (0, font_height),
-	    txt_action,
+	    txtSetStatus,
+	    font=font,
+	    fill=255,
+	)
+	draw.text(
+	    (0, font_height*3),
+	    str(timeWait),
 	    font=font,
 	    fill=255,
 	)
 	oled.image(image)
 	oled.show()
-
-def action(txt = "", col = ""):
-	global txt_action
-	txt_action = txt
-	text()
-	color(col)
-def color(col = ""):
-	GPIO.output(LED_PIN_R, GPIO.LOW)
-	GPIO.output(LED_PIN_G, GPIO.LOW)
-	GPIO.output(LED_PIN_B, GPIO.LOW)
-	if(col=="R"):
-		GPIO.output(LED_PIN_R, GPIO.HIGH)
-	elif(col=="G"):
-		GPIO.output(LED_PIN_G, GPIO.HIGH)
-	elif(col=="B"):
-		GPIO.output(LED_PIN_B, GPIO.HIGH)
-	elif(col=="Y"):
-		GPIO.output(LED_PIN_R, GPIO.HIGH)
-		GPIO.output(LED_PIN_G, GPIO.HIGH)
-	elif(col=="V"):
-		GPIO.output(LED_PIN_R, GPIO.HIGH)
-		GPIO.output(LED_PIN_B, GPIO.HIGH)
-	elif(col=="T"):
-		GPIO.output(LED_PIN_G, GPIO.HIGH)
-		GPIO.output(LED_PIN_B, GPIO.HIGH)
-
-			
+def setStatus(txt = "", col = ""):
+	global txtSetStatus
+	txtSetStatus = txt
+	global ledColor
+	ledColor = col
+	if powerStateOn:
+		oledRefresh()
+		color()
+def color():
+	global ledColor
+	GPIO.output(LED_R, GPIO.LOW)
+	GPIO.output(LED_G, GPIO.LOW)
+	GPIO.output(LED_B, GPIO.LOW)
+	if(ledColor=="R"):
+		GPIO.output(LED_R, GPIO.HIGH)
+	elif(ledColor=="G"):
+		GPIO.output(LED_G, GPIO.HIGH)
+	elif(ledColor=="B"):
+		GPIO.output(LED_B, GPIO.HIGH)
+	elif(ledColor=="Y"):
+		GPIO.output(LED_R, GPIO.HIGH)
+		GPIO.output(LED_G, GPIO.HIGH)
+	elif(ledColor=="V"):
+		GPIO.output(LED_R, GPIO.HIGH)
+		GPIO.output(LED_B, GPIO.HIGH)
+	elif(ledColor=="T"):
+		GPIO.output(LED_G, GPIO.HIGH)
+		GPIO.output(LED_B, GPIO.HIGH)		
 color()
 while True:
-	with con:
-		cur.execute("SELECT * FROM WIFI")
-	txt_count = len(cur.fetchall())
-	action("scanning...", "G")
+	timeEnd = time() + timeWait
+	if timeOnLast + timeOn < time():
+		oled.poweroff()
+		ledColor = ""
+		color()
+		powerStateOn = False
+	setStatus("scanning...", "G")
 	content = iwlist.scan(interface="wlan0")
 	timeNow = time()
-	action("parsing...", "Y")
+	setStatus("parsing...", "Y")
 	cells = iwlist.parse(content)
 	#print(datetime.utcfromtimestamp(timeNow).strftime('%Y-%m-%d %H:%M:%S'))
-	txt_count_now = len(cells)
+	txtCountNow = len(cells)
 	for cell in cells:
 		#print(cell["mac"], cell["essid"], int(cell["channel"]), cell["encryption"])
 		with con:
 			con.execute("INSERT OR REPLACE INTO WIFI VALUES (?, ?, ?, ?, ?)", (cell["mac"], cell["essid"], int(cell["channel"]), cell["encryption"], timeNow))
-	action("waiting...", "B")
+	with con:
+		cur.execute("SELECT * FROM WIFI")
+	txtCount = len(cur.fetchall())
+	setStatus("waiting...", "B")
 	br = False
-	timeEnd = time() + 5
 	while time() < timeEnd:
-		if GPIO.input(BUTTON_PIN) == GPIO.LOW:
-			action("button...", "R")
-			timeButtonEnd = time() + 3
-			while GPIO.input(BUTTON_PIN) == GPIO.LOW:
-				if time() > timeButtonEnd:
-					br = True
-					break
-			if not br:
-				action("waiting...", "B")
-		if br:
-			break
-	if br:
-		break
+		pass
 setStatus("exiting...", "V")
-color("V")
 con.close()
