@@ -34,8 +34,17 @@ def butEn(but = 0):
 	timeOnLast = time()
 	global powerStateOn
 	powerStateOn = True
-	color()
+	colorRefresh()
 	oled.poweron()
+	timeHold = time()
+	while GPIO.input(but) == GPIO.LOW:
+		if timeHold + timeHoldOff/2 < time():
+			setStatus("poweroff?", "V")
+		if timeHold + timeHoldOff < time():
+			setStatus("poweroff...", "R")
+			global brex
+			brex = True
+			
 def butPr(but = 0):
 	global powerStateOn
 	global timeWait
@@ -62,6 +71,7 @@ GPIO.setup(LED_R, GPIO.OUT)
 GPIO.setup(LED_G, GPIO.OUT)
 GPIO.setup(LED_B, GPIO.OUT)
 
+timeHoldOff = 5
 timeWait = 5
 timeOn = 10
 timeOnLast = time()
@@ -70,6 +80,7 @@ txtSetStatus = "test"
 txtCount = 0
 txtCountNow = 0
 ledColor = ""
+brex = False
 def oledRefresh():
 	draw.rectangle((0, 0, oled.width, oled.height), outline=0, fill=0)
 	(font_width, font_height) = font.getsize("txt")
@@ -106,8 +117,8 @@ def setStatus(txt = "", col = ""):
 	ledColor = col
 	if powerStateOn:
 		oledRefresh()
-		color()
-def color():
+		colorRefresh()
+def colorRefresh():
 	global ledColor
 	GPIO.output(LED_R, GPIO.LOW)
 	GPIO.output(LED_G, GPIO.LOW)
@@ -127,13 +138,13 @@ def color():
 	elif(ledColor=="T"):
 		GPIO.output(LED_G, GPIO.HIGH)
 		GPIO.output(LED_B, GPIO.HIGH)		
-color()
+colorRefresh()
 while True:
 	timeEnd = time() + timeWait
 	if timeOnLast + timeOn < time():
 		oled.poweroff()
 		ledColor = ""
-		color()
+		colorRefresh()
 		powerStateOn = False
 	setStatus("scanning...", "G")
 	content = iwlist.scan(interface="wlan0")
@@ -152,6 +163,9 @@ while True:
 	setStatus("waiting...", "B")
 	br = False
 	while time() < timeEnd:
-		pass
-setStatus("exiting...", "V")
-con.close()
+		if brex:
+			con.close()
+			ledColor = ""
+			colorRefresh()
+			oled.poweroff()
+			exit()
