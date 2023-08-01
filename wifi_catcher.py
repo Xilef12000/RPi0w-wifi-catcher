@@ -168,8 +168,8 @@ while True:
 		with con:
 			con.execute("INSERT OR REPLACE INTO WIFI VALUES (?, ?, ?, ?, ?)", (cell["mac"], cell["essid"], int(cell["channel"]), cell["encryption"], timeNow))
 	with con:
-		cur.execute("SELECT * FROM WIFI")
-	txtCount = len(cur.fetchall())
+		cur.execute("SELECT COUNT (*) FROM WIFI")
+	txtCount = cur.fetchall()[0][0]
 	setStatus("waiting...", "B")
 	br = False
 	while time() < timeEnd:
