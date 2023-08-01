@@ -6,29 +6,32 @@ A Raspberry Pi Zero W based wifi scanner
 ### Button:
 *using a simple push-button with pull-up resistor*
 
-| button | pi0w  | PIN |
-|--------|-------|-----|
-| GND    | GND   | 6   |
-| VIN    | 3V3   | 2   |
-| Signal | GPIO4 | 7   |
+| buttons | GPIO |
+|---------|------|
+| GND     | GND  |
+| enter   | 21   |
+| up      | 22   |
+| down    | 17   |
+| left    | 27   |
+| right   | 6    |
 
 ### RGB-LED:
 *using a common-cathode RGB-LED*
 
-| LED   | pi0w   | PIN |
-|-------|--------|-----|
-| GND   | GND    | 39  |
-| red   | GPIO26 | 37  |
-| green | GPIO21 | 40  |
-| blue  | GPIO20 | 38  |
+| LED   | GPIO |
+|-------|------|
+| GND   | GND  |
+| red   | 13   |
+| green | 19   |
+| blue  | 26   |
 
 ### 0.96" I2C OLED Display::
-| OLED | pi0w        | PIN |
-|------|-------------|-----|
-| GND  | GND         | 9   |
-| VCC  | 3V3         | 1   |
-| SCL  | GPIO3/SCL   | 5   |
-| SDA  | GPIO2/SDA   | 3   |
+| OLED | GPIO  |
+|------|-------|
+| GND  | GND   |
+| VCC  | 3V3   |
+| SCL  | 3 SCL |
+| SDA  | 2 SDA |
 
 ### boot preparation:
 1. flash SD-Card with Raspberry Pi OS light (configure your wifi now!)
@@ -44,4 +47,6 @@ sudo sh setup.sh
 
 open the webpage on port 8080
 
-a long button-press will turn your pi off
+short Enter press: turn display on
+long Enter press: turn pi off
+short left/right press while display is on: decrease/increase delay between scanning
