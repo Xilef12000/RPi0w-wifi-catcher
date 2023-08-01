@@ -45,7 +45,7 @@ sudo chmod a+x setup.sh
 sudo sh setup.sh
 ```
 
-open the webpage on port 8080
+open the webpage on `http://YOURPI'SIP:8080/wifi/content/`
 
 short Enter press: turn display on
 long Enter press: turn pi off

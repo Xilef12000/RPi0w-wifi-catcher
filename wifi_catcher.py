@@ -7,6 +7,7 @@ import board
 import busio
 from PIL import Image, ImageDraw, ImageFont
 import adafruit_ssd1306
+import os
 
 i2c = busio.I2C(board.SCL, board.SDA)
 oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
@@ -15,7 +16,7 @@ oled.show()
 image = Image.new("1", (oled.width, oled.height))
 draw = ImageDraw.Draw(image)
 #font = ImageFont.load_default()
-font = ImageFont.truetype(font="DejaVuSans", size=16)
+font = ImageFont.truetype(font="DejaVuSans", size=14)
 
 con = sqlite3.connect("/home/pi/RPi0w-wifi-catcher/wifi.db")
 cur = con.cursor()
@@ -30,6 +31,8 @@ BUT_L = 27
 BUT_R = 6
 
 def butEn(but = 0):
+	global txtIp
+	txtIp = os.popen("ip a | grep wlan0 | grep inet | awk  '{print $2}'").read().split('\n')[0]
 	global timeOnLast
 	timeOnLast = time()
 	global powerStateOn
@@ -79,6 +82,7 @@ powerStateOn = True
 txtSetStatus = "test"
 txtCount = 0
 txtCountNow = 0
+txtIp = os.popen("ip a | grep wlan0 | grep inet | awk  '{print $2}'").read().split('\n')[0]
 ledColor = ""
 brex = False
 def oledRefresh():
@@ -99,6 +103,12 @@ def oledRefresh():
 	draw.text(
 	    (0, font_height),
 	    txtSetStatus,
+	    font=font,
+	    fill=255,
+	)
+	draw.text(
+	    (0, font_height*2),
+	    txtIp,
 	    font=font,
 	    fill=255,
 	)
